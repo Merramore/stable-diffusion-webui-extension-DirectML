@@ -98,6 +98,14 @@ if has_dml:
     cumsum = inject_shim("torch", "Tensor.cumsum", bypass_dml_shim)
 
 
+    @injectable_shim("torch", "Tensor.new")
+    def new_tensor(shim_target, self, *args, **kwargs):
+        device = self.device
+        if device.type == 'privateuseone':
+            return shim_target(self.to('cpu'), *args, **kwargs).to(device)
+        return shim_target(self, *args, **kwargs)
+
+
 
 # == webui hacks == #
 
